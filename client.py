@@ -7,6 +7,8 @@ body = {
     'product_id': 1,
     'quantity': 1,
     'amount': 1000,
+    #'quantity': 2,
+    #'amount': 900,
     'address': 'Rua Sete de Setembro 100, Curitiba, PR'
 }
 

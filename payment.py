@@ -26,7 +26,7 @@ def process_payment():
     new_payment = Payment(order_id=data['order_id'], amount=data['amount'])
     session.add(new_payment)
     session.commit()
-    #return None
+    #return jsonify({'error': 'insufficient amount'}), 400
     return jsonify({'status': 'paid'}), 200
 
 @app.route('/compensate_payment', methods=['POST'])

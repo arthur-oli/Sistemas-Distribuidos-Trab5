@@ -12,7 +12,7 @@ def create_order():
 
     stock_reserved = reserve_stock_service(order_id, data['product_id'], data['quantity'])
 
-    if 'error' in stock_reserved.json:
+    if 'error' in stock_reserved.json():
         cancel_order_service(order_id)
         return jsonify({'error': 'Stock insufficient.'}), 400
 
@@ -21,12 +21,12 @@ def create_order():
         cancel_order_service(order_id)
         return jsonify({'error': 'Stock reservation failed'}), 400
 
-    payment_processed = process_payment_service(order_id, data['amount'], stock_reserved['cost'])
+    payment_processed = process_payment_service(order_id, data['amount'], stock_reserved.json()['cost'])
 
-    if 'error' in payment_processed.json:
+    if 'error' in payment_processed.json():
         compensate_stock_service(data['product_id'], data['quantity'])
         cancel_order_service(order_id)
-        return jsonify({'error': 'Stock insufficient.'}), 400
+        return jsonify({'error': 'Amount insufficient.'}), 400
 
     if not payment_processed:
         compensate_payment_service(order_id)
@@ -52,15 +52,15 @@ def create_order_service(client_name):
 
 def reserve_stock_service(order_id, product_id, quantity):
     response = requests.post('http://localhost:5001/reserve_stock', json={'order_id': order_id, 'product_id': product_id, 'quantity': quantity})
-    return response.status_code == 200
+    return response
 
-def process_payment_service(order_id, amount):
-    response = requests.post('http://localhost:5002/process_payment', json={'order_id': order_id, 'amount': amount})
-    return response.status_code == 200
+def process_payment_service(order_id, amount, cost):
+    response = requests.post('http://localhost:5002/process_payment', json={'order_id': order_id, 'amount': amount, 'cost': cost})
+    return response
 
 def ship_order_service(order_id, address):
     response = requests.post('http://localhost:5003/ship_order', json={'order_id': order_id, 'address': address})
-    return response.status_code == 200
+    return response
 
 def cancel_order_service(order_id):
     requests.post('http://localhost:5000/cancel_order', json={'order_id': order_id})

@@ -19,7 +19,7 @@ class Product(Base):
 session = Session()
 Base.metadata.create_all(engine)
 if (not session.query(Product).filter_by(id = 1).first()):
-    new_stock = Product(id = 1, name = "Notebook", stock = 2500, cost = 1000)
+    new_stock = Product(id = 1, name = "Notebook", stock = 1, cost = 1000)
     session.add(new_stock)
     session.commit()
 
