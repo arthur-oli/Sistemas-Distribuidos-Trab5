@@ -7,7 +7,7 @@ body = {
     'product_id': 1,
     'quantity': 1,
     'amount': 1000,
-    'address': 'Rua Exemplo 100, Curitiba, PR'
+    'address': 'Rua Sete de Setembro 100, Curitiba, PR'
 }
 
 body_json = json.dumps(body)

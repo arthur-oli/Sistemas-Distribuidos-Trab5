@@ -21,6 +21,8 @@ Base.metadata.create_all(engine)
 def process_payment():
     session = Session()
     data = request.json
+    if data['amount'] < data['cost']:
+        return jsonify({'error': 'insufficient amount'}), 400
     new_payment = Payment(order_id=data['order_id'], amount=data['amount'])
     session.add(new_payment)
     session.commit()

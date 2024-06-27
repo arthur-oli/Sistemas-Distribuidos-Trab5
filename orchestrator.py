@@ -11,23 +11,34 @@ def create_order():
         return jsonify({'error': 'Order creation failed'}), 400
 
     stock_reserved = reserve_stock_service(order_id, data['product_id'], data['quantity'])
+
+    if 'error' in stock_reserved.json:
+        cancel_order_service(order_id)
+        return jsonify({'error': 'Stock insufficient.'}), 400
+
     if not stock_reserved:
         compensate_stock_service(data['product_id'], data['quantity'])
         cancel_order_service(order_id)
         return jsonify({'error': 'Stock reservation failed'}), 400
 
-    payment_processed = process_payment_service(order_id, data['amount'])
-    if not payment_processed:
+    payment_processed = process_payment_service(order_id, data['amount'], stock_reserved['cost'])
+
+    if 'error' in payment_processed.json:
         compensate_stock_service(data['product_id'], data['quantity'])
+        cancel_order_service(order_id)
+        return jsonify({'error': 'Stock insufficient.'}), 400
+
+    if not payment_processed:
         compensate_payment_service(order_id)
+        compensate_stock_service(data['product_id'], data['quantity'])
         cancel_order_service(order_id)
         return jsonify({'error': 'Payment processing failed'}), 400
 
     shipping_done = ship_order_service(order_id, data['address'])
     if not shipping_done:
-        compensate_stock_service(data['product_id'], data['quantity'])
-        compensate_payment_service(order_id)
         compensate_shipping_service(order_id)
+        compensate_payment_service(order_id)
+        compensate_stock_service(data['product_id'], data['quantity'])
         cancel_order_service(order_id)
         return jsonify({'error': 'Shipping failed'}), 400
 

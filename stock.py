@@ -13,12 +13,13 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     stock = Column(Integer)
+    cost = Column(Integer)
 
 # criando um estoque básico para iniciar
 session = Session()
 Base.metadata.create_all(engine)
 if (not session.query(Product).filter_by(id = 1).first()):
-    new_stock = Product(id = 1, name = "Notebook", stock = 2500)
+    new_stock = Product(id = 1, name = "Notebook", stock = 2500, cost = 1000)
     session.add(new_stock)
     session.commit()
 
@@ -31,7 +32,7 @@ def reserve_stock():
         product.stock -= data['quantity']
         session.commit()
         #return None
-        return jsonify({'status': 'reserved'}), 200
+        return jsonify({'status': 'reserved', 'cost': product.cost}), 200
     return jsonify({'error': 'insufficient stock'}), 400
 
 @app.route('/compensate_stock', methods=['POST'])
